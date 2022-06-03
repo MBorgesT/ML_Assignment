@@ -49,17 +49,33 @@ def plot_classifier_boundary(model, X, y, sc=None, h=.05):
     plt.ylabel('$x_2$')
     
     plt.show()
-    
-    
-def test_10_times(model, X, y, sc=False):
-    results = 0
-    for i in range(10):
+
+
+def test_model(model, X, y):
+    result_sum = 0
+    for _ in range(10):
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.33)
         
-        if sc:
-            sc = StandardScaler().fit(X_train)
-            X_train = sc.transform(X_train)
-            X_test = sc.transform(X_test)
+        model.fit(X_train, y_train)
+        result_sum += roc_auc_score(y_test, model.predict(X_test))
+
+    print('LR auc: %.3f' % (result_sum / 10))
+    if X.shape[1] == 2:
+        plot_classifier_boundary(model, X, y)
+
+
+def test_model_with_standard_scaler(model, X, y):
+    result_sum = 0
+    for _ in range(10):
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.33)
         
-        roc_auc_score(y_test, mlp.predict(sc_X_test))
+        sc = StandardScaler().fit(X_train)
+        sc_X_train = sc.transform(X_train)
+        sc_X_test = sc.transform(X_test)
         
+        model.fit(sc_X_train, y_train)
+        result_sum += roc_auc_score(y_test, model.predict(sc_X_test))
+
+    print('MLP auc: %.3f' % (result_sum / 10))
+    if X.shape[1] == 2:
+        plot_classifier_boundary(model, X, y, sc)
