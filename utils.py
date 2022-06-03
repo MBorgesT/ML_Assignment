@@ -2,6 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import roc_auc_score
 
 
 cmap_bg='Pastel1'
@@ -46,3 +49,17 @@ def plot_classifier_boundary(model, X, y, sc=None, h=.05):
     plt.ylabel('$x_2$')
     
     plt.show()
+    
+    
+def test_10_times(model, X, y, sc=False):
+    results = 0
+    for i in range(10):
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.33)
+        
+        if sc:
+            sc = StandardScaler().fit(X_train)
+            X_train = sc.transform(X_train)
+            X_test = sc.transform(X_test)
+        
+        roc_auc_score(y_test, mlp.predict(sc_X_test))
+        
