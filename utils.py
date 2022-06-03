@@ -24,7 +24,7 @@ def plot_2d(X, y, title=''):
 def plot_classifier_boundary(model, X, y, sc=None, h=.05, title=''):
     assert X.shape[1] == 2, 'The dataset needs to be 2 dimentional'
     # this function can be used with any sklearn classifier
-    # ready for two classes but can be easily extended]
+    # ready for two classes but can be easily extended
     x_min, x_max = X[:, 0].min()-.2, X[:, 0].max()+.2
     y_min, y_max = X[:, 1].min()-.2, X[:, 1].max()+.2
     # generate a grid with step h
