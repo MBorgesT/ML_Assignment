@@ -51,22 +51,24 @@ def plot_classifier_boundary(model, X, y, sc=None, h=.05):
     plt.show()
 
 
-def test_model(model, X, y):
+def test_model(model, X, y, n_tests=10):
     result_sum = 0
-    for _ in range(10):
+    for _ in range(n_tests):
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.33)
         
         model.fit(X_train, y_train)
         result_sum += roc_auc_score(y_test, model.predict(X_test))
 
-    print('LR auc: %.3f' % (result_sum / 10))
+    print('AUC score: %.3f' % (result_sum / n_tests))
     if X.shape[1] == 2:
         plot_classifier_boundary(model, X, y)
+    else:
+        print('''The classifier boundary can't be plotted because the dataset has more than 2 dimensions''')
 
 
-def test_model_with_standard_scaler(model, X, y):
+def test_model_with_standard_scaler(model, X, y, n_tests=10):
     result_sum = 0
-    for _ in range(10):
+    for _ in range(n_tests):
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.33)
         
         sc = StandardScaler().fit(X_train)
@@ -76,6 +78,8 @@ def test_model_with_standard_scaler(model, X, y):
         model.fit(sc_X_train, y_train)
         result_sum += roc_auc_score(y_test, model.predict(sc_X_test))
 
-    print('MLP auc: %.3f' % (result_sum / 10))
+    print('AUC score: %.3f' % (result_sum / n_tests))
     if X.shape[1] == 2:
         plot_classifier_boundary(model, X, y, sc)
+    else:
+        print('''The classifier boundary can't be plotted because the dataset has more than 2 dimensions''')
