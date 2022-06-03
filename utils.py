@@ -2,6 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import roc_auc_score
 
 
 cmap_bg='Pastel1'
@@ -46,3 +49,37 @@ def plot_classifier_boundary(model, X, y, sc=None, h=.05):
     plt.ylabel('$x_2$')
     
     plt.show()
+
+
+def test_model(model, X, y, n_tests=10):
+    result_sum = 0
+    for _ in range(n_tests):
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.33)
+        
+        model.fit(X_train, y_train)
+        result_sum += roc_auc_score(y_test, model.predict(X_test))
+
+    print('AUC score: %.3f' % (result_sum / n_tests))
+    if X.shape[1] == 2:
+        plot_classifier_boundary(model, X, y)
+    else:
+        print('''The classifier boundary can't be plotted because the dataset has more than 2 dimensions''')
+
+
+def test_model_with_standard_scaler(model, X, y, n_tests=10):
+    result_sum = 0
+    for _ in range(n_tests):
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.33)
+        
+        sc = StandardScaler().fit(X_train)
+        sc_X_train = sc.transform(X_train)
+        sc_X_test = sc.transform(X_test)
+        
+        model.fit(sc_X_train, y_train)
+        result_sum += roc_auc_score(y_test, model.predict(sc_X_test))
+
+    print('AUC score: %.3f' % (result_sum / n_tests))
+    if X.shape[1] == 2:
+        plot_classifier_boundary(model, X, y, sc)
+    else:
+        print('''The classifier boundary can't be plotted because the dataset has more than 2 dimensions''')
