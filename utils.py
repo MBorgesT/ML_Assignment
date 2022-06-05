@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from  matplotlib import colors
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
 
@@ -46,4 +47,24 @@ def plot_classifier_boundary(model, X, y, sc=None, h=.05, title=''):
     plt.xlabel('$x_1$')
     plt.ylabel('$x_2$')
     
+    plt.show()
+
+
+def plot_classifier_boundary_3(model,X,y,h = .05):
+    # this function can be used with any sklearn classifier
+    # ready for two classes but can be easily extended
+    cmap = colors.ListedColormap(['blue','orange','green'])
+    cmap_light = colors.ListedColormap(['lightsteelblue', 'peachpuff','lightgreen'])
+    x_min, x_max = X[:, 0].min()-.2, X[:, 0].max()+.2
+    y_min, y_max = X[:, 1].min()-.2, X[:, 1].max()+.2
+    # generate a grid with step h
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
+                         np.arange(y_min, y_max, h))
+    # the method ravel flattens xx and yy
+    Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+    plt.contourf(xx, yy, Z, cmap=cmap_light)
+    plt.xlim((x_min,x_max))
+    plt.ylim((y_min,y_max))
+    plt.scatter(X[:,0],X[:,1],color=cmap(y))
     plt.show()
