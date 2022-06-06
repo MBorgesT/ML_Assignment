@@ -12,7 +12,9 @@ cmap_fg='Set1'
 
 
 def plot_2d(X, y):
+    assert X.shape[1] >= 2
     if X.shape[1] > 2:
+        print('Reducing the dataset dimension to 2D...')
         X_2d = PCA(n_components=2).fit_transform(X)
     else:
         X_2d = X
