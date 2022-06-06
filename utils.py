@@ -76,17 +76,33 @@ def plot_classifier_boundary_3(model,X,y,h = .05):
 
 def test_model(model, X, y, n_tests=10):
     result_sum = 0
+    auc_list = []
     for _ in range(n_tests):
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.33)
         
         model.fit(X_train, y_train)
-        result_sum += roc_auc_score(y_test, model.predict(X_test))
+        auc_score = roc_auc_score(y_test, model.predict(X_test))
+        result_sum += auc_score
+        auc_list.append(auc_score)
 
     print('AUC score: %.3f' % (result_sum / n_tests))
+    print('AUC score list:', auc_list)
     if X.shape[1] == 2:
         plot_classifier_boundary(model, X, y)
     else:
         print('''The classifier boundary can't be plotted because the dataset has more than 2 dimensions''')
+
+
+def test_model_min(model, X, y, n_tests=10):
+    auc_list = []
+    
+    for _ in range(n_tests):
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.33)
+        model.fit(X_train, y_train)
+        auc_score = roc_auc_score(y_test, model.predict(X_test))
+        auc_list.append(auc_score)
+
+    return np.mean(auc_list)
 
 
 def test_model_with_standard_scaler(model, X, y, n_tests=10):
