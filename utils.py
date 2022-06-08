@@ -6,13 +6,17 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import roc_auc_score
 
+from tensorflow import keras as k
+
 
 cmap_bg='Pastel1'
 cmap_fg='Set1'
 
 
 def plot_2d(X, y):
+    assert X.shape[1] >= 2
     if X.shape[1] > 2:
+        print('Reducing the dataset dimension to 2D...')
         X_2d = PCA(n_components=2).fit_transform(X)
     else:
         X_2d = X
@@ -23,7 +27,7 @@ def plot_2d(X, y):
     plt.show()
 
 
-def plot_classifier_boundary(model, X, y, sc=None, h=.05):
+def plot_classifier_boundary(model, X, y, sc=None, lib='skl', h=.05):
     assert X.shape[1] == 2, 'The dataset needs to be 2 dimentional'
     # this function can be used with any sklearn classifier
     # ready for two classes but can be easily extended]
@@ -37,7 +41,15 @@ def plot_classifier_boundary(model, X, y, sc=None, h=.05):
     if sc is not None:
         predict_input = sc.transform(predict_input)
     
-    Z = model.predict(predict_input)
+    if lib == 'skl':
+        Z = model.predict(predict_input)
+    elif lib == 'keras':
+        turn_binary = lambda x: 1 if x > .5 else 0 
+        Z = model(predict_input).numpy()
+        Z = np.asarray([turn_binary(x) for x in Z[:, 0]])
+    else:
+        raise Exception('Invalid lib type')
+        
     Z = Z.reshape(xx.shape)
     plt.contourf(xx, yy, Z, cmap=cmap_bg)
     plt.xlim((x_min,x_max))
@@ -59,7 +71,7 @@ def test_model(model, X, y, n_tests=10):
         model.fit(X_train, y_train)
         result_sum += roc_auc_score(y_test, model.predict(X_test))
 
-    print('AUC score: %.3f' % (result_sum / n_tests))
+    print('Mean AUC score: %.3f' % (result_sum / n_tests))
     if X.shape[1] == 2:
         plot_classifier_boundary(model, X, y)
     else:
@@ -78,8 +90,28 @@ def test_model_with_standard_scaler(model, X, y, n_tests=10):
         model.fit(sc_X_train, y_train)
         result_sum += roc_auc_score(y_test, model.predict(sc_X_test))
 
-    print('AUC score: %.3f' % (result_sum / n_tests))
+    print('Mean AUC score: %.3f' % (result_sum / n_tests))
     if X.shape[1] == 2:
         plot_classifier_boundary(model, X, y, sc)
     else:
         print('''The classifier boundary can't be plotted because the dataset has more than 2 dimensions''')
+
+
+def test_keras_model(model, X, y, n_tests=10):
+    opt = k.optimizers.SGD(learning_rate=0.01, momentum=0.9)
+    model.compile(loss='binary_crossentropy', optimizer=opt, metrics=[k.metrics.AUC(from_logits=True)])
+
+    results = 0
+    for _ in range(10):
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.33)
+        
+        history = model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=25, verbose=0)
+        for key in history.history.keys():
+            if key.startswith('val_auc'):
+                auc_key = key
+                break
+        results += history.history[auc_key][-1]
+
+    print('Mean AUC score: %.3f' % (results / 10))
+    plot_classifier_boundary(model, X, y, lib='keras')
+
