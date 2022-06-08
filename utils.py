@@ -92,7 +92,6 @@ def test_model(model, X, y, n_tests=10):
         auc_list.append(auc_score)
 
     print('AUC score: %.3f' % (result_sum / n_tests))
-    print('AUC score list:', auc_list)
     if X.shape[1] == 2:
         plot_classifier_boundary(model, X, y)
     else:
