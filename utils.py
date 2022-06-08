@@ -78,10 +78,16 @@ def test_model(model, X, y, n_tests=10):
     result_sum = 0
     auc_list = []
     for _ in range(n_tests):
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.33)
-        
-        model.fit(X_train, y_train)
-        auc_score = roc_auc_score(y_test, model.predict(X_test))
+        auc_score = 0
+        while True: # gambiarra
+            try:
+                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.33)
+                model.fit(X_train, y_train)
+                auc_score = roc_auc_score(y_test, model.predict(X_test))
+                break
+            except ValueError:
+                print('ValueError due to lack of samples for class y. Iteration is repeated.')
+
         result_sum += auc_score
         auc_list.append(auc_score)
 

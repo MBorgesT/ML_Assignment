@@ -24,12 +24,9 @@ def knn_classifier_err(k,X_train,y_train,X_test,y_test):
                       1 - acc(y_train,y_train_pred)])
 
 
-def knn_classifier_auc(k, X, y):#
+def knn_classifier_auc(k, X, y):
     model=kNC(n_neighbors=k)
     mean_auc = test_model_min(model, X, y, n_tests=10)
-    # print('nbitches')
-    # print(mean_auc)
-    # print(np.array([mean_auc]))
     return np.array([mean_auc])
 
 
@@ -51,14 +48,11 @@ def dt_classifier_score(X_train,y_train,X_test,y_test, max_depth=None, min_sampl
 def dt_classifier_auc(X, y, max_depth=None, min_samples_split=2):
     model=DTC(criterion='entropy', max_depth=max_depth, min_samples_split=min_samples_split)
     mean_score = np.mean(cross_val_score(model, X, y, scoring='roc_auc', cv=nfolds))
-    # print('bitch')
-    # print(mean_score)
-    # print(np.array([mean_score]))
     return np.array([mean_score])
 
 
 def get_auc_gbc_trees(m, X, y):
-    model=GBC(n_estimators=m, learning_rate=0.1,max_depth=3)
+    model=GBC(n_estimators=m)
     return np.mean(cross_val_score(model, X, y, scoring='roc_auc', cv=nfolds))
 
 

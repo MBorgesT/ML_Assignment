@@ -26,12 +26,11 @@ def plot_test_training_auc(param_values, aucs, title, hyperparam):
 
 
 # plot auc tree num
-def plot_tree_compare(ntree, auc_ada_tree, auc_gbc_tree, auc_tree, auc_decision_stump):
+def plot_tree_compare(ntree, auc_ada_tree, auc_gbc_tree, auc_tree):
     plt.plot(ntree, [x for x in auc_ada_tree], color='red')
     plt.plot(ntree, [x for x in auc_gbc_tree], color='purple')
     plt.axhline([x for x in auc_tree], color='blue')
-    plt.axhline([x for x in auc_decision_stump], color='black')
-    plt.legend(['AdaBoost','GradientBoost','Tree','Stump'])
+    plt.legend(['AdaBoost','GradientBoost','Tree'])
     plt.xlabel('Number of trees')
     plt.ylabel('ROC AUC')
     plt.title('Ensembles and trees in classification');
